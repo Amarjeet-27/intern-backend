@@ -1,13 +1,13 @@
-import { timeStamp } from "console";
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    // role: {
-    //   type: String,
-    //   enum: ["admin"],
-    //   required: false,
-    // },
+    role: {
+      type: String,
+      enum: ["admin"],
+      required: false,
+      default: null,
+    },
     name: {
       type: String,
       required: true,
@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timeStamp: true }
+  { timestamps: true }
 );
 
 const userModel = mongoose.model("users", userSchema);
