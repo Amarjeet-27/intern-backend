@@ -2,6 +2,7 @@ import express, { Application } from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import userRouter from "./routes/userRoute";
+import electionRouter from "routes/electionRoute";
 import { UserType } from "./db/user/userModel";
 import connectDB from "./db/connect";
 import healthCheckerRouter from "./routes/healthCheckerRouter";
@@ -22,6 +23,8 @@ app.use(express.urlencoded({ extended: true }));
 //routes for the app
 app.use("/api/v1/", healthCheckerRouter);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/election",electionRouter);
+
 const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {

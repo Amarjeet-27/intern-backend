@@ -6,11 +6,18 @@ interface UserType {
   password: string;
   scholarId: string;
   branch: string;
+  role: string;
   _id?: Types.ObjectId;
 }
 const userSchema = new mongoose.Schema<UserType>(
   {
     username: { type: String, required: true },
+    role: {
+      type: String,
+      required: true,
+      enum: ["General", "Admin","Super Admin"],
+      default: "General",
+    },
     email: {
       type: String,
       required: true,
