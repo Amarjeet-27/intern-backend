@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext",
+      "sourceMap": true,
+      "noImplicitAny": true,
+      "esModuleInterop": true,
+      "outDir": "dist",
+      "baseUrl": "src",
+      "skipLibCheck": true
+    },
+    "include":[
+      "src/**/*",
+      "./api/*.ts"
+    ]
+  }
+  
