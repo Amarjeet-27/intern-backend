@@ -11,11 +11,14 @@ interface UserType {
 }
 const userSchema = new mongoose.Schema<UserType>(
   {
-    username: { type: String, required: true },
+    username: { type: String, required: [true, "username is required"] },
     role: {
       type: String,
       required: true,
-      enum: ["General", "Admin","Super Admin"],
+      enum: {
+        values: ["General", "Admin", "Super Admin"],
+        message: "{VALUE} is not supported",
+      },
       default: "General",
     },
     email: {
@@ -23,18 +26,26 @@ const userSchema = new mongoose.Schema<UserType>(
       required: true,
       unique: true,
     },
-    password: { type: String, required: true, minlength: 8, select: false },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: [8, "Password length is short."],
+      select: false,
+    },
     scholarId: {
       type: String,
-      required: true,
-      maxlength: 7,
-      minlength: 7,
+      required: [true, "scholarId is required"],
+      maxlength: [7, "mustbe Of length 7"],
+      minlength: [7, "mustbe Of length 7"],
       unique: true,
     },
     branch: {
       type: String,
-      enum: ["cse", "ece", "me", "ce", "eie", "ee"],
-      required: true,
+      enum: {
+        values: ["cse", "ece", "me", "ce", "eie", "ee"],
+        message: "{VALUE} is not Supported",
+      },
+      required: [true, "Branch is required"],
     },
   },
   { timestamps: true }

@@ -10,14 +10,17 @@ import bcryptjs from "bcryptjs";
 //login the user
 
 export const loginUser = asyncHandler(async (req: Request, res: Response) => {
-  const { email, pass } = req.body;
-  if (!email || !pass) {
+  const { email, password } = req.body;
+  if (!email || !password) {
     throw new ApiError(400, "Fill all the Fields");
   }
   const existingUser = await User.findOne({ email }).select("password");
   if (!existingUser) throw new ApiError(404, "user doesn't exist");
   // checking password
-  const isPasswordCorrect = await bcryptjs.compare(pass, existingUser.password);
+  const isPasswordCorrect = await bcryptjs.compare(
+    password,
+    existingUser.password
+  );
   // if not correct
   if (!isPasswordCorrect) {
     throw new ApiError(404, "Password is wrong");
@@ -27,29 +30,37 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
     process.env.JWT_SECRET,
     { expiresIn: "1d" }
   );
+  const user = existingUser._id;
   res
     .status(200)
-    .json(
-      new ApiResponse(200, { existingUser, token }, "Logged In successfully")
-    );
+    .json(new ApiResponse(200, { user, token }, "Logged In successfully"));
 });
 
 //register a user
 export const registerUser = asyncHandler(
   async (req: Request, res: Response) => {
-    const data = req.body;
-    const email = data.email;
+    const { username, email, password, branch, scholarId } = req.body;
+    if (!username || !email || !password || !branch || !scholarId) {
+      throw new ApiError(400, "All Field Required");
+    }
     const existingUser = await getUserByEmail(email);
     if (existingUser) {
       throw new ApiError(400, "User Already Exists");
     }
     //creating hashed password
     const salt = await bcryptjs.genSalt(12);
-    const hashedPassword = await bcryptjs.hash(data.password, salt);
+    const hashedPassword = await bcryptjs.hash(password, salt);
     //creating new user
-    const newUser = await User.create({ ...data, password: hashedPassword });
+    const newUser = await User.create({
+      username: username,
+      branch: branch,
+      scholarId: scholarId,
+      email: email,
+      password: hashedPassword,
+    });
+    await newUser.save();
     const token = jwt.sign(
-      { email: data.email, id: newUser._id },
+      { email: email, id: newUser._id },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
