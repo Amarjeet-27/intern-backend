@@ -27,7 +27,7 @@ app.use("/api/v1/election", electionRouter);
 const PORT = process.env.PORT || 5000;
 const startServer = async () => {
     try {
-        connectDB(process.env.MONGODB_URL);
+        connectDB(process.env.MONGODB_URL as string);
         app.listen(PORT, () => console.log(`server started at port ${PORT}`));
     } catch (error) {
         console.log(error.message);
