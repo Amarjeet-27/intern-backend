@@ -4,10 +4,9 @@ import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import {
   electionModel as Election,
-  getElectionByElectionId,
   getElectionById,
-} from "db/election/electionModel";
-import { getUserById } from "db/user/userModel";
+} from "../db/election/electionModel";
+import { getUserById } from "../db/user/userModel";
 export const createElection = asyncHandler(
   async (req: Request, res: Response) => {
     const data = req.body;

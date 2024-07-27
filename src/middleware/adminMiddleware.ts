@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { ApiError } from "utils/ApiError";
-import { asyncHandler } from "utils/asyncHandler";
+import { ApiError } from "../utils/ApiError";
+import { asyncHandler } from "../utils/asyncHandler";
 
 const isAdmin = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
