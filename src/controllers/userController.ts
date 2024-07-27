@@ -30,31 +30,37 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
         process.env.JWT_SECRET,
         { expiresIn: "1d" }
     );
-    const user_id = existingUser._id;
+    const user = existingUser._id;
     res.status(200).json(
-        new ApiResponse(200, { user_id, token }, "Logged In successfully")
+        new ApiResponse(200, { user, token }, "Logged In successfully")
     );
 });
 
 //register a user
 export const registerUser = asyncHandler(
     async (req: Request, res: Response) => {
-        const data = req.body;
-        const email = data.email;
+        const { username, email, password, branch, scholarId } = req.body;
+        if (!username || !email || !password || !branch || !scholarId) {
+            throw new ApiError(400, "All Field Required");
+        }
         const existingUser = await getUserByEmail(email);
         if (existingUser) {
             throw new ApiError(400, "User Already Exists");
         }
         //creating hashed password
         const salt = await bcryptjs.genSalt(12);
-        const hashedPassword = await bcryptjs.hash(data.password, salt);
+        const hashedPassword = await bcryptjs.hash(password, salt);
         //creating new user
         const newUser = await User.create({
-            ...data,
+            username: username,
+            branch: branch,
+            scholarId: scholarId,
+            email: email,
             password: hashedPassword,
         });
+        await newUser.save();
         const token = jwt.sign(
-            { email: data.email, id: newUser._id },
+            { email: email, id: newUser._id },
             process.env.JWT_SECRET,
             { expiresIn: "1d" }
         );
