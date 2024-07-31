@@ -50,6 +50,7 @@ contract ElectionManager {
 
     constructor() {
         admin = msg.sender;
+        authorizedCreators[msg.sender]=true;
     }
 
     // Authorize a new election creator
@@ -146,5 +147,10 @@ contract ElectionManager {
     function getCandidates(uint256 _electionId) public view returns (address[] memory) {
         Election storage election = elections[_electionId];
         return election.candidateList;
+    }
+    //get the list of voters 
+    function getVoters (uint256 _electionId) public view returns(address[] memory){
+        Election storage election =elections[_electionId];
+        return election.voterList;
     }
 }
