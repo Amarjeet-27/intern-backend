@@ -1,6 +1,6 @@
 import { Router } from "express";
 import protect from "../middleware/authMiddleware";
-import isAdmin from "../middleware/adminMiddleware";
+import {isAdmin} from "../middleware/adminMiddleware";
 import {
     createElection,
     addCandidate,
