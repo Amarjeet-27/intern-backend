@@ -9,10 +9,19 @@ import {
 import { getUserById } from "../db/user/userModel";
 export const createElection = asyncHandler(
   async (req: Request, res: Response) => {
-    const data = req.body;
+    const {name,post,desp,startTime} = req.body;
+    if(!name || !post || !desp || !startTime){
+      throw new ApiError(400, "Field Required");
+    }
     //to do call to blockchain
     //get the election Id
-    const newElection = new Election({ ...data, creator: req.user._id });
+    const newElection = new Election({
+      name,
+      post,
+      desp,
+      startTime,
+      creator: req.user._id,
+    });
     await newElection.save();
     res
       .status(201)
@@ -93,3 +102,26 @@ export const hasVoted = asyncHandler(async (req: Request, res: Response) => {
   await election.save();
   res.status(200).json(new ApiResponse(200, null, "Record Added"));
 });
+
+export const getElectionByCertainCreator = asyncHandler(
+  async (req: Request, res: Response) => {
+    const election = await Election.find({ creator: req.user._id },{
+      name:1,
+      post:1,
+      desp:1,
+      startTime:1,
+      _id:1
+    });
+    res.status(200).json(new ApiResponse(200, election, "Election Found"));
+  }
+);
+
+//get election candidates
+export const getElectionCandidates = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { electionId } = req.query;
+    const election = await getElectionById(electionId as string).populate('candidates');
+    const candidates = election.candidates;
+    res.status(200).json(new ApiResponse(200, candidates, "Candidates Found"));
+  }
+);

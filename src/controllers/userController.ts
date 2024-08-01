@@ -151,3 +151,8 @@ export const addRequest = asyncHandler(async (req: Request, res: Response) => {
   await request.save();
   res.status(201).json(new ApiResponse(201, request, "Created Successfully"));
 });
+//return request which is not approved
+export const getRequests = asyncHandler(async (req: Request, res: Response) => {
+  const requests = await RequestModel.find({ approved: false });
+  res.status(200).json(new ApiResponse(200, requests, "Fetched Successfully"));
+});
