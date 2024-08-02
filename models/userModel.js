@@ -20,10 +20,22 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    Registration_No: {
+    branch: {
+      type: String,
+      required: true,
+    },
+    year: {
+      type: Number,
+      required: [true, "Year is required"],
+      enum: [2025,2026, 2027, 2028 ],
+    },
+    scholar_id: {
       type: Number,
       required: true,
     },
+    election_id: {
+      type: Number,
+    }
   },
   { timestamps: true }
 );
