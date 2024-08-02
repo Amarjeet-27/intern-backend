@@ -125,3 +125,17 @@ export const getElectionCandidates = asyncHandler(
     res.status(200).json(new ApiResponse(200, candidates, "Candidates Found"));
   }
 );
+
+//get election whose start time is less than now
+export const getElections = asyncHandler(
+  async (req: Request, res: Response) => {
+    const currentTime = new Date();
+    const ongoingElections = await Election.find({
+      startTime: { $lt: currentTime },
+    });
+    const upcomingElections = await Election.find({
+      startTime: { $gt: currentTime },
+    });
+    res.status(200).json(new ApiResponse(200, { ongoingElections, upcomingElections }, "Elections Found"));
+  }
+);

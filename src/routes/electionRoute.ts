@@ -9,10 +9,12 @@ import {
   hasVoted,
   getElectionByCertainCreator,
   getElectionCandidates,
+  getElections
 } from "../controllers/electionController";
 const electionRouter = Router();
 
 electionRouter.route("/").post(protect, isAdmin, createElection);
+electionRouter.route("/getElection").get(getElections);
 electionRouter.route("/addCandidate").post(protect, isAdmin, addCandidate);
 electionRouter.route("/addVoter").post(protect, isAdmin, addVoter);
 electionRouter.route("/eligible").get(protect, isEligible);

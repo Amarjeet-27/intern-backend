@@ -13,7 +13,7 @@ const isAdmin = asyncHandler(
 );
 const isSuperAdmin = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const adminOrNot = req.user.role === "Super Admin";
+    const adminOrNot = req.user.role === "Super Admin" || "Admin" ;
     if (!adminOrNot) {
       throw new ApiError(401, "Not Admin Access");
     }

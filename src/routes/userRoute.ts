@@ -1,7 +1,7 @@
 import express from "express";
 import {loginUser,registerUser,updateUser,getUserByScholarId, makeUserAdmin, makeUserGeneral, addRequest, getRequests} from "../controllers/userController";
 import protect from "../middleware/authMiddleware";
-import { isSuperAdmin } from "middleware/adminMiddleware";
+import { isSuperAdmin } from "../middleware/adminMiddleware";
 const userRouter = express.Router();
 
 userRouter.post("/login",loginUser );
