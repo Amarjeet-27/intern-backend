@@ -7,6 +7,7 @@ interface UserType {
     scholarId: string;
     branch: string;
     role: string;
+    address: string;
     _id?: Types.ObjectId;
 }
 const userSchema = new mongoose.Schema<UserType>(
@@ -47,6 +48,7 @@ const userSchema = new mongoose.Schema<UserType>(
             },
             required: [true, "Branch is required"],
         },
+        address: { type: String, required: true },
     },
     { timestamps: true }
 );

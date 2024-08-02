@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import { UserModel as User } from "../db/user/userModel";
 import { getUserByEmail } from "../db/user/userModel";
 import bcryptjs from "bcryptjs";
-
+import { RequestModel } from "../db/request/requestModel";
 //login the user
 
 export const loginUser = asyncHandler(async (req: Request, res: Response) => {
@@ -23,14 +23,14 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
     );
     // if not correct
     if (!isPasswordCorrect) {
-        throw new ApiError(404, "Password is wrong");
+        throw new ApiError(401, "Invalid Password");
     }
     const token = jwt.sign(
         { email: existingUser.email, id: existingUser._id },
         process.env.JWT_SECRET,
         { expiresIn: "1d" }
     );
-    const user = existingUser._id;
+    const user = await User.findOne({ email });
     res.status(200).json(
         new ApiResponse(200, { user, token }, "Logged In successfully")
     );
@@ -39,8 +39,16 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
 //register a user
 export const registerUser = asyncHandler(
     async (req: Request, res: Response) => {
-        const { username, email, password, branch, scholarId } = req.body;
-        if (!username || !email || !password || !branch || !scholarId) {
+        const { username, email, password, branch, scholarId, address } =
+            req.body;
+        if (
+            !username ||
+            !email ||
+            !password ||
+            !branch ||
+            !scholarId ||
+            !address
+        ) {
             throw new ApiError(400, "All Field Required");
         }
         const existingUser = await getUserByEmail(email);
@@ -57,6 +65,7 @@ export const registerUser = asyncHandler(
             scholarId: scholarId,
             email: email,
             password: hashedPassword,
+            address: address,
         });
         await newUser.save();
         const token = jwt.sign(
@@ -103,3 +112,63 @@ export const getUserByScholarId = asyncHandler(
         );
     }
 );
+
+//make user admin
+
+export const makeUserAdmin = asyncHandler(
+    async (req: Request, res: Response) => {
+        const { email } = req.body;
+        if (!email) {
+            throw new ApiError(400, "Field Required");
+        }
+        const user = await User.findOneAndUpdate(
+            { email },
+            { role: "Admin" },
+            { new: true }
+        );
+        await RequestModel.findOneAndUpdate(
+            { email },
+            { approved: true },
+            { new: true }
+        );
+        res.status(200).json(
+            new ApiResponse(200, user, "Updated Successfully")
+        );
+    }
+);
+//make user general again
+
+export const makeUserGeneral = asyncHandler(
+    async (req: Request, res: Response) => {
+        const { email } = req.body;
+        if (!email) {
+            throw new ApiError(400, "Field Required");
+        }
+        const user = await User.findOneAndUpdate(
+            { email },
+            { role: "General" },
+            { new: true }
+        );
+        res.status(200).json(
+            new ApiResponse(200, user, "Updated Successfully")
+        );
+    }
+);
+
+// add a request to make user admin
+export const addRequest = asyncHandler(async (req: Request, res: Response) => {
+    const { email, name } = req.body;
+    if (!email || !name) {
+        throw new ApiError(400, "Field Required");
+    }
+    const request = await RequestModel.create({ email, name });
+    await request.save();
+    res.status(201).json(new ApiResponse(201, request, "Created Successfully"));
+});
+//return request which is not approved
+export const getRequests = asyncHandler(async (req: Request, res: Response) => {
+    const requests = await RequestModel.find({ approved: false });
+    res.status(200).json(
+        new ApiResponse(200, requests, "Fetched Successfully")
+    );
+});
