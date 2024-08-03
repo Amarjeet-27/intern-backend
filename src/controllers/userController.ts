@@ -2,6 +2,7 @@ import { Response, Request } from "express";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
+
 import jwt from "jsonwebtoken";
 import { UserModel as User } from "../db/user/userModel";
 import { getUserByEmail } from "../db/user/userModel";
@@ -100,10 +101,14 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
 export const getUserByScholarId = asyncHandler(
     async (req: Request, res: Response) => {
         const { scholarId } = req.query;
+        console.log(scholarId);
+        // console.log(scholarId);
+        // const scholarId = req.params.scholarId;
+
         if (!scholarId) {
             throw new ApiError(404, "Field Required");
         }
-        const user = User.findOne({ scholarId });
+        const user = await User.findOne({ scholarId });
         if (!user) {
             throw new ApiError(404, "User not Exists");
         }
@@ -172,3 +177,4 @@ export const getRequests = asyncHandler(async (req: Request, res: Response) => {
         new ApiResponse(200, requests, "Fetched Successfully")
     );
 });
+// export const addElection = asyncHandler(201 , request, "hello");
