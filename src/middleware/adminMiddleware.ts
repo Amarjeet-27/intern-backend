@@ -4,7 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 
 const isAdmin = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const adminOrNot = req.user.role === "Admin";
+    const adminOrNot = req.user.role === "Admin" || req.user.role==='Super Admin';
     if (!adminOrNot) {
       throw new ApiError(401, "Not Admin Access");
     }
