@@ -95,13 +95,14 @@ export const addVoter = asyncHandler(async (req: Request, res: Response) => {
 export const isEligible = asyncHandler(async (req: Request, res: Response) => {
     const { electionId } = req.query;
     const election = await getElectionById(electionId as string);
+    let canVote = true;
     if (!election.voters.includes(req.user._id)) {
-        throw new ApiError(401, "Not Eligible");
+        canVote = false;
     }
     if (election.hasVoted.includes(req.user._id)) {
-        throw new ApiError(401, "Not Eligible");
+        canVote = false;
     }
-    res.status(200).json(new ApiResponse(200, null, "Eligible"));
+    res.status(200).json(new ApiResponse(200, canVote));
 });
 
 export const hasVoted = asyncHandler(async (req: Request, res: Response) => {

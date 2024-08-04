@@ -22,7 +22,5 @@ electionRouter.route("/getElection").get(getElections);
 electionRouter.route("/voted").get(protect, hasVoted);
 electionRouter.route("/getVoters").get(protect, getVoters);
 electionRouter.route("/elections").get(protect, getElectionByCertainCreator);
-electionRouter
-    .route("/getElectionCandidates")
-    .get(protect, getElectionCandidates);
+electionRouter.route("/getElectionCandidates").get(getElectionCandidates);
 export default electionRouter;
