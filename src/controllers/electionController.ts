@@ -7,8 +7,7 @@ import {
     getElectionById,
     getElectionByElectionId,
 } from "../db/election/electionModel";
-import { getUserById } from "../db/user/userModel";
-import { ObjectId } from "mongoose";
+import { getUserById, UserModel } from "../db/user/userModel";
 export const createElection = asyncHandler(
     async (req: Request, res: Response) => {
         const { name, post, desp, startTime } = req.body;
@@ -27,7 +26,7 @@ export const createElection = asyncHandler(
         });
         await newElection.save();
         res.status(201).json(
-            new ApiResponse(20, newElection, "Election Created Successfully")
+            new ApiResponse(200, newElection, "Election Created Successfully")
         );
     }
 );
@@ -67,27 +66,27 @@ export const addCandidate = asyncHandler(
     }
 );
 export const addVoter = asyncHandler(async (req: Request, res: Response) => {
-    const { electionId, voterId } = req.query;
+    const { electionId, startingScholarId, endingScholarId } = req.body;
     const election = await getElectionById(electionId as string);
     if (election.startTime <= new Date()) {
         throw new ApiError(400, "Can't add election is going on");
     }
-    const voter = await getUserById(voterId as string);
     if (!election) {
         throw new ApiError(404, "No Election Found");
     }
-    if (!voter) {
-        throw new ApiError(404, "Candidate Not Found");
-    }
-    if (req.user._id != election.creator) {
+    if (!req.user._id.equals(election.creator)) {
         throw new ApiError(401, "Only Creator can add voter");
     }
-    if (election.candidates.includes(voter._id)) {
-        throw new ApiError(404, "Candidate Already Added");
-    }
-    election.candidates.push(voter._id);
-    await election.save();
+    const voters = await UserModel.find({
+        scholarId: { $gte: startingScholarId, $lte: endingScholarId },
+    });
     //to do call to blockchain
+    voters.forEach((voter) => {
+        if (!election.voters.includes(voter._id)) {
+            election.voters.push(voter._id);
+        }
+    });
+    await election.save();
     res.status(201).json(
         new ApiResponse(201, null, "Voter added Successfully")
     );
@@ -137,8 +136,6 @@ export const getElectionCandidates = asyncHandler(
         const election = await Election.findById(electionId).populate(
             "candidates"
         );
-        const candidates = election?.candidates;
-        console.log(election);
         res.status(200).json(
             new ApiResponse(200, election, "Candidates Found")
         );
