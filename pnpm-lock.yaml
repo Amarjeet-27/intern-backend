@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@types/nodemailer':
+        specifier: ^6.4.15
+        version: 6.4.15
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3
@@ -26,6 +29,9 @@ importers:
       mongoose:
         specifier: ^8.5.1
         version: 8.5.1
+      nodemailer:
+        specifier: ^6.9.14
+        version: 6.9.14
       nodemon:
         specifier: ^3.1.4
         version: 3.1.4
@@ -532,6 +538,9 @@ packages:
 
   '@types/node@8.10.66':
     resolution: {integrity: sha512-tktOkFUA4kXx2hhhrB8bIFb5TbwzS4uOhKEmwiD+NoiL0qtP2OQ9mFldbgD4dV1djrlBYP6eBuQZiWjuHUpqFw==}
+
+  '@types/nodemailer@6.4.15':
+    resolution: {integrity: sha512-0EBJxawVNjPkng1zm2vopRctuWVCxk34JcIlRuXSf54habUWdz1FB7wHDqOqvDa8Mtpt0Q3LTXQkAs2LNyK5jQ==}
 
   '@types/pbkdf2@3.1.2':
     resolution: {integrity: sha512-uRwJqmiXmh9++aSu1VNEn3iIxWOhd8AHXNSdlaLfdAAdSTY9jYVeGWnzejM3dvrkbqE3/hyQkQQ29IFATEGlew==}
@@ -1698,6 +1707,10 @@ packages:
   node-gyp-build@4.8.1:
     resolution: {integrity: sha512-OSs33Z9yWr148JZcbZd5WiAXhh/n9z8TxQcdMhIOlpN9AhWpLfvVFO73+m77bBABQMaY9XSvIa+qk0jlI7Gcaw==}
     hasBin: true
+
+  nodemailer@6.9.14:
+    resolution: {integrity: sha512-Dobp/ebDKBvz91sbtRKhcznLThrKxKt97GI2FAlAyy+fk19j73Uz3sBXolVtmcXjaorivqsbbbjDY+Jkt4/bQA==}
+    engines: {node: '>=6.0.0'}
 
   nodemon@3.1.4:
     resolution: {integrity: sha512-wjPBbFhtpJwmIeY2yP7QF+UKzPfltVGtfce1g/bB15/8vCGZj8uxD62b/b9M9/WVgme0NZudpownKN+c0plXlQ==}
@@ -3077,6 +3090,10 @@ snapshots:
 
   '@types/node@8.10.66': {}
 
+  '@types/nodemailer@6.4.15':
+    dependencies:
+      '@types/node': 20.14.12
+
   '@types/pbkdf2@3.1.2':
     dependencies:
       '@types/node': 20.14.12
@@ -4430,6 +4447,8 @@ snapshots:
       lodash: 4.17.21
 
   node-gyp-build@4.8.1: {}
+
+  nodemailer@6.9.14: {}
 
   nodemon@3.1.4:
     dependencies:

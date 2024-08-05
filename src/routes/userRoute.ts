@@ -8,12 +8,16 @@ import {
     makeUserGeneral,
     addRequest,
     getRequests,
+    sendOtp,
+    verifyOtp,
 } from "../controllers/userController";
 import protect from "../middleware/authMiddleware";
 import { isSuperAdmin } from "../middleware/adminMiddleware";
 const userRouter = express.Router();
 
 userRouter.post("/login", loginUser);
+userRouter.post("/send-otp", sendOtp);
+userRouter.post("/verify-otp", verifyOtp);
 userRouter.post("/register", registerUser);
 userRouter.get("/scholarId", protect, getUserByScholarId);
 userRouter.get("/update", protect, updateUser);

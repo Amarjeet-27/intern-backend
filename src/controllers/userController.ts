@@ -1,13 +1,16 @@
 import { Response, Request } from "express";
+import * as dotenv from "dotenv";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
-
+import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 import { UserModel as User } from "../db/user/userModel";
 import { getUserByEmail } from "../db/user/userModel";
 import bcryptjs from "bcryptjs";
 import { RequestModel } from "../db/request/requestModel";
+dotenv.config();
+
 //login the user
 
 export const loginUser = asyncHandler(async (req: Request, res: Response) => {
@@ -36,6 +39,64 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
         new ApiResponse(200, { user, token }, "Logged In successfully")
     );
 });
+
+
+
+// generate otp 
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: 'try.ajchaurasia1214@gmail.com',
+    pass: process.env.PASS_KEY,
+  }
+});
+interface SendOtpRequest extends Request {
+  body: {
+    email: string;
+  };
+}
+
+interface VerifyOtpRequest extends Request {
+  body: {
+    email: string;
+    otp: number;
+    otpToken: string;
+  };
+}
+export const sendOtp = async (req: SendOtpRequest, res: Response) => {
+ const { email } = req.body;
+  const otp = Math.floor(100000 + Math.random() * 900000); 
+  
+  const otpToken = jwt.sign({ email, otp }, process.env.OTP_SECRET_KEY, { expiresIn: '10m' });
+
+  const mailOptions = {
+    from: 'try.ajchaurasia1214@gmail.com',
+    to: email,
+    subject: 'Your OTP Code',
+    text: `Your OTP code is ${otp}. It is valid for 10 minutes.`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ success: true, message: 'OTP sent to email', otpToken });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error sending OTP', error });
+  }
+};
+
+export const verifyOtp = (req: VerifyOtpRequest, res: Response) => {
+  const { email, otp, otpToken} = req.body;
+  try {
+    const decoded = jwt.verify(otpToken,process.env.OTP_SECRET_KEY ) as { email: string, otp: number };
+    if (decoded.email === email && decoded.otp === otp) {
+      res.status(200).json({ success: true, message: 'OTP verified' });
+    } else {
+      res.status(400).json({ success: false, message: 'Invalid OTP' });
+    }
+  } catch (error) {
+    res.status(400).json({ success: false, message: 'OTP expired or invalid', error });
+  }
+};
 
 //register a user
 export const registerUser = asyncHandler(
