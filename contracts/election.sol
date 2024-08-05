@@ -44,13 +44,16 @@ contract ElectionManager {
     }
 
     modifier onlyAuthorizedCreator() {
-        require(authorizedCreators[msg.sender], "Not an authorized election creator");
+        require(
+            authorizedCreators[msg.sender],
+            "Not an authorized election creator"
+        );
         _;
     }
 
     constructor() {
         admin = msg.sender;
-        authorizedCreators[msg.sender]=true;
+        authorizedCreators[msg.sender] = true;
     }
 
     // Authorize a new election creator
@@ -59,7 +62,9 @@ contract ElectionManager {
     }
 
     // Create a new election
-    function createElection(string memory _name) public onlyAuthorizedCreator {
+    function createElection(
+        string memory _name
+    ) public onlyAuthorizedCreator returns (uint256) {
         electionCount++;
         Election storage newElection = elections[electionCount];
         newElection.name = _name;
@@ -67,16 +72,26 @@ contract ElectionManager {
         newElection.isActive = true;
 
         emit ElectionCreated(electionCount, _name, msg.sender);
+        return electionCount;
     }
 
     // Add a candidate to an election
     function addCandidate(uint256 _electionId, address _candidate) public {
         Election storage election = elections[_electionId];
-        require(msg.sender == election.creator, "Only election creator can add candidates");
+        require(
+            msg.sender == election.creator,
+            "Only election creator can add candidates"
+        );
         require(election.isActive, "Election is not active");
-        require(!election.candidates[_candidate].isRegistered, "Candidate already added");
+        require(
+            !election.candidates[_candidate].isRegistered,
+            "Candidate already added"
+        );
 
-        election.candidates[_candidate] = Candidate({ isRegistered: true, voteCount: 0 });
+        election.candidates[_candidate] = Candidate({
+            isRegistered: true,
+            voteCount: 0
+        });
         election.candidateList.push(_candidate);
 
         emit CandidateAdded(_electionId, _candidate);
@@ -85,11 +100,14 @@ contract ElectionManager {
     // Add a voter to an election
     function addVoter(uint256 _electionId, address _voter) public {
         Election storage election = elections[_electionId];
-        require(msg.sender == election.creator, "Only election creator can add voters");
+        require(
+            msg.sender == election.creator,
+            "Only election creator can add voters"
+        );
         require(election.isActive, "Election is not active");
         require(!election.voters[_voter].isRegistered, "Voter already added");
 
-        election.voters[_voter] = Voter({ isRegistered: true, hasVoted: false });
+        election.voters[_voter] = Voter({isRegistered: true, hasVoted: false});
         election.voterList.push(_voter);
 
         emit VoterAdded(_electionId, _voter);
@@ -99,9 +117,18 @@ contract ElectionManager {
     function vote(uint256 _electionId, address _candidate) public {
         Election storage election = elections[_electionId];
         require(election.isActive, "Election is not active");
-        require(election.voters[msg.sender].isRegistered, "You are not allowed to vote");
-        require(!election.voters[msg.sender].hasVoted, "You have already voted");
-        require(election.candidates[_candidate].isRegistered, "Invalid candidate");
+        require(
+            election.voters[msg.sender].isRegistered,
+            "You are not allowed to vote"
+        );
+        require(
+            !election.voters[msg.sender].hasVoted,
+            "You have already voted"
+        );
+        require(
+            election.candidates[_candidate].isRegistered,
+            "Invalid candidate"
+        );
 
         election.candidates[_candidate].voteCount++;
         election.voters[msg.sender].hasVoted = true; // Mark the voter as having voted
@@ -112,14 +139,20 @@ contract ElectionManager {
     // End an election
     function endElection(uint256 _electionId) public {
         Election storage election = elections[_electionId];
-        require(msg.sender == election.creator, "Only election creator can end the election");
+        require(
+            msg.sender == election.creator,
+            "Only election creator can end the election"
+        );
         require(election.isActive, "Election is already ended");
 
         election.isActive = false;
     }
 
     // Get the vote count for a candidate
-    function getVotes(uint256 _electionId, address _candidate) public view returns (uint256) {
+    function getVotes(
+        uint256 _electionId,
+        address _candidate
+    ) public view returns (uint256) {
         Election storage election = elections[_electionId];
         return election.candidates[_candidate].voteCount;
     }
@@ -144,13 +177,18 @@ contract ElectionManager {
     }
 
     // Get the list of candidates in an election
-    function getCandidates(uint256 _electionId) public view returns (address[] memory) {
+    function getCandidates(
+        uint256 _electionId
+    ) public view returns (address[] memory) {
         Election storage election = elections[_electionId];
         return election.candidateList;
     }
-    //get the list of voters 
-    function getVoters (uint256 _electionId) public view returns(address[] memory){
-        Election storage election =elections[_electionId];
+
+    //get the list of voters
+    function getVoters(
+        uint256 _electionId
+    ) public view returns (address[] memory) {
+        Election storage election = elections[_electionId];
         return election.voterList;
     }
 }

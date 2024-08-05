@@ -3,14 +3,14 @@ import protect from "../middleware/authMiddleware";
 import { isAdmin } from "../middleware/adminMiddleware";
 import { getElections } from "../controllers/electionController";
 import {
-    createElection,
-    addCandidate,
-    addVoter,
-    isEligible,
-    hasVoted,
-    getElectionByCertainCreator,
-    getElectionCandidates,
-    getVoters,
+  createElection,
+  addCandidate,
+  addVoter,
+  isEligible,
+  hasVoted,
+  getElectionByCertainCreator,
+  getElectionInfo,
+  getVoters,
 } from "../controllers/electionController";
 const electionRouter = Router();
 
@@ -22,7 +22,5 @@ electionRouter.route("/getElection").get(getElections);
 electionRouter.route("/voted").get(protect, hasVoted);
 electionRouter.route("/getVoters").get(protect, getVoters);
 electionRouter.route("/elections").get(protect, getElectionByCertainCreator);
-electionRouter
-    .route("/getElectionCandidates")
-    .get(protect, getElectionCandidates);
+electionRouter.route("/getElectionInfo").get(getElectionInfo);
 export default electionRouter;

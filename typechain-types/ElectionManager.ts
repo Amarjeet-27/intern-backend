@@ -276,7 +276,7 @@ export interface ElectionManager extends BaseContract {
     "view"
   >;
 
-  createElection: TypedContractMethod<[_name: string], [void], "nonpayable">;
+  createElection: TypedContractMethod<[_name: string], [bigint], "nonpayable">;
 
   electionCount: TypedContractMethod<[], [bigint], "view">;
 
@@ -353,7 +353,7 @@ export interface ElectionManager extends BaseContract {
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "createElection"
-  ): TypedContractMethod<[_name: string], [void], "nonpayable">;
+  ): TypedContractMethod<[_name: string], [bigint], "nonpayable">;
   getFunction(
     nameOrSignature: "electionCount"
   ): TypedContractMethod<[], [bigint], "view">;
