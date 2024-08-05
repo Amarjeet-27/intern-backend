@@ -9,7 +9,7 @@ interface ElectionType {
   hasVoted?: [Types.ObjectId];
   startTime: Date;
   desp: string;
-  electionId?: number;
+  electionId: number;
   _id?: Types.ObjectId;
 }
 const electionSchema = new Schema<ElectionType>(
@@ -22,7 +22,7 @@ const electionSchema = new Schema<ElectionType>(
     voters: [{ type: Schema.Types.ObjectId, ref: "User" }],
     hasVoted: [{ type: Schema.Types.ObjectId, ref: "User" }],
     startTime: { type: Date, required: true },
-    electionId: { type: Number, unique: true },
+    electionId: { type: Number, unique: true, required: true },
   },
   { timestamps: true }
 );

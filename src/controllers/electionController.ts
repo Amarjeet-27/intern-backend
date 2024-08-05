@@ -9,18 +9,17 @@ import {
 import { getUserById, UserModel } from "../db/user/userModel";
 export const createElection = asyncHandler(
   async (req: Request, res: Response) => {
-    const { name, post, desp, startTime } = req.body;
-    console.log(name, post, desp, startTime);
-    if (!name || !post || !desp || !startTime) {
+    const { name, post, desp, startTime, electionId } = req.body;
+    console.log(name, post, desp, startTime, electionId);
+    if (!name || !post || !desp || !startTime || !electionId) {
       throw new ApiError(400, "Field Required");
     }
-    //to do call to blockchain
-    //get the election Id
     const newElection = new Election({
       name,
       post,
       desp,
       startTime,
+      electionId,
       creator: req.user._id,
     });
     await newElection.save();
