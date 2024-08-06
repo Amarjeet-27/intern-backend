@@ -11,6 +11,7 @@ import {
     getElectionByCertainCreator,
     getElectionInfo,
     getVoters,
+    endElection,
 } from "../controllers/electionController";
 const electionRouter = Router();
 
@@ -23,4 +24,5 @@ electionRouter.route("/voted").get(protect, hasVoted);
 electionRouter.route("/getVoters").get(protect, getVoters);
 electionRouter.route("/elections").get(protect, getElectionByCertainCreator);
 electionRouter.route("/getElectionInfo").get(getElectionInfo);
+electionRouter.route("/endElection").post(protect, isAdmin, endElection);
 export default electionRouter;

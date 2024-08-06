@@ -144,16 +144,19 @@ export const getElections = asyncHandler(
         const currentTime = new Date();
         const ongoingElections = await Election.find({
             startTime: { $lt: currentTime },
+            hasEnded: false,
         });
         const upcomingElections = await Election.find({
             startTime: { $gt: currentTime },
+            hasEnded: false,
         });
-        // console.log(ongoingElections);
-
+        const endedElections = await Election.find({
+            hasEnded: true,
+        });
         res.status(200).json(
             new ApiResponse(
                 200,
-                { ongoingElections, upcomingElections },
+                { ongoingElections, upcomingElections, endedElections },
                 "Elections Found"
             )
         );
@@ -167,4 +170,16 @@ export const getVoters = asyncHandler(async (req: Request, res: Response) => {
     );
     const voters = election.voters;
     res.status(200).json(new ApiResponse(200, voters, "Candidates Found"));
+});
+
+//function to end the election
+export const endElection = asyncHandler(async (req: Request, res: Response) => {
+    const { electionId } = req.body;
+    const election = await getElectionById(electionId as string);
+    if (req.user._id !== election.creator) {
+        throw new ApiError(401, "Only Creator can end election");
+    }
+    election.hasEnded = true;
+    await election.save();
+    res.status(200).json(new ApiResponse(200, null, "Election Ended"));
 });

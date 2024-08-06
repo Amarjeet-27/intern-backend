@@ -6,7 +6,6 @@ contract ElectionManager {
 
     // Voter and Candidate structure
     struct Voter {
-        bool isRegistered;
         bool hasVoted;
     }
 
@@ -23,7 +22,6 @@ contract ElectionManager {
         mapping(address => Candidate) candidates;
         address[] candidateList;
         mapping(address => Voter) voters;
-        address[] voterList;
     }
 
     mapping(uint256 => Election) public elections;
@@ -32,22 +30,26 @@ contract ElectionManager {
     mapping(address => bool) public authorizedCreators;
 
     // Events for logging
-    event ElectionCreated(uint256 electionId, string name, address creator);
-    event CandidateAdded(uint256 electionId, address candidate);
-    event VoterAdded(uint256 electionId, address voter);
-    event VoteCast(uint256 electionId, address voter, address candidate);
+    event ElectionCreated(
+        uint256 electionId,
+        string name,
+        address indexed creator
+    );
+    event CandidateAdded(uint256 electionId, address indexed candidate);
+    event VoteCast(
+        uint256 electionId,
+        address indexed voter,
+        address indexed candidate
+    );
 
     // Modifiers for access control
     modifier onlyAdmin() {
-        require(msg.sender == admin, "Only admin can perform this action");
+        require(msg.sender == admin, "Only admin can do it");
         _;
     }
 
     modifier onlyAuthorizedCreator() {
-        require(
-            authorizedCreators[msg.sender],
-            "Not an authorized election creator"
-        );
+        require(authorizedCreators[msg.sender], "Not authorized");
         _;
     }
 
@@ -78,11 +80,8 @@ contract ElectionManager {
     // Add a candidate to an election
     function addCandidate(uint256 _electionId, address _candidate) public {
         Election storage election = elections[_electionId];
-        require(
-            msg.sender == election.creator,
-            "Only election creator can add candidates"
-        );
-        require(election.isActive, "Election is not active");
+        require(msg.sender == election.creator, "Only election creator can");
+        require(election.isActive, "Election isn't active");
         require(
             !election.candidates[_candidate].isRegistered,
             "Candidate already added"
@@ -97,41 +96,18 @@ contract ElectionManager {
         emit CandidateAdded(_electionId, _candidate);
     }
 
-    // Add a voter to an election
-    function addVoter(uint256 _electionId, address _voter) public {
-        Election storage election = elections[_electionId];
-        require(
-            msg.sender == election.creator,
-            "Only election creator can add voters"
-        );
-        require(election.isActive, "Election is not active");
-        require(!election.voters[_voter].isRegistered, "Voter already added");
-
-        election.voters[_voter] = Voter({isRegistered: true, hasVoted: false});
-        election.voterList.push(_voter);
-
-        emit VoterAdded(_electionId, _voter);
-    }
-
     // Cast a vote in an election
     function vote(uint256 _electionId, address _candidate) public {
         Election storage election = elections[_electionId];
-        require(election.isActive, "Election is not active");
-        require(
-            election.voters[msg.sender].isRegistered,
-            "You are not allowed to vote"
-        );
-        require(
-            !election.voters[msg.sender].hasVoted,
-            "You have already voted"
-        );
+        require(election.isActive, "Election isn't active");
+        require(!election.voters[msg.sender].hasVoted, "Already voted");
         require(
             election.candidates[_candidate].isRegistered,
             "Invalid candidate"
         );
 
         election.candidates[_candidate].voteCount++;
-        election.voters[msg.sender].hasVoted = true; // Mark the voter as having voted
+        election.voters[msg.sender] = Voter({hasVoted: true}); // Mark the voter as having voted
 
         emit VoteCast(_electionId, msg.sender, _candidate);
     }
@@ -139,10 +115,7 @@ contract ElectionManager {
     // End an election
     function endElection(uint256 _electionId) public {
         Election storage election = elections[_electionId];
-        require(
-            msg.sender == election.creator,
-            "Only election creator can end the election"
-        );
+        require(msg.sender == election.creator, "Only election creator can");
         require(election.isActive, "Election is already ended");
 
         election.isActive = false;
@@ -164,8 +137,8 @@ contract ElectionManager {
 
         address winner;
         uint256 maxVotes = 0;
-
-        for (uint256 i = 0; i < election.candidateList.length; i++) {
+        uint256 length = election.candidateList.length;
+        for (uint256 i = 0; i < length; ++i) {
             address candidate = election.candidateList[i];
             if (election.candidates[candidate].voteCount > maxVotes) {
                 maxVotes = election.candidates[candidate].voteCount;
@@ -182,13 +155,5 @@ contract ElectionManager {
     ) public view returns (address[] memory) {
         Election storage election = elections[_electionId];
         return election.candidateList;
-    }
-
-    //get the list of voters
-    function getVoters(
-        uint256 _electionId
-    ) public view returns (address[] memory) {
-        Election storage election = elections[_electionId];
-        return election.voterList;
     }
 }
