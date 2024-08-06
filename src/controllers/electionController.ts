@@ -5,23 +5,21 @@ import { asyncHandler } from "../utils/asyncHandler";
 import {
     electionModel as Election,
     getElectionById,
-    getElectionByElectionId,
 } from "../db/election/electionModel";
 import { getUserById, UserModel } from "../db/user/userModel";
 export const createElection = asyncHandler(
     async (req: Request, res: Response) => {
-        const { name, post, desp, startTime } = req.body;
-        console.log(name, post, desp, startTime);
-        if (!name || !post || !desp || !startTime) {
+        const { name, post, desp, startTime, electionId } = req.body;
+        console.log(name, post, desp, startTime, electionId);
+        if (!name || !post || !desp || !startTime || !electionId) {
             throw new ApiError(400, "Field Required");
         }
-        //to do call to blockchain
-        //get the election Id
         const newElection = new Election({
             name,
             post,
             desp,
             startTime,
+            electionId,
             creator: req.user._id,
         });
         await newElection.save();
@@ -95,14 +93,14 @@ export const addVoter = asyncHandler(async (req: Request, res: Response) => {
 export const isEligible = asyncHandler(async (req: Request, res: Response) => {
     const { electionId } = req.query;
     const election = await getElectionById(electionId as string);
-    let canVote = true;
+    let eligible = true;
     if (!election.voters.includes(req.user._id)) {
-        canVote = false;
+        eligible = false;
     }
     if (election.hasVoted.includes(req.user._id)) {
-        canVote = false;
+        eligible = false;
     }
-    res.status(200).json(new ApiResponse(200, canVote));
+    res.status(200).json(new ApiResponse(200, eligible));
 });
 
 export const hasVoted = asyncHandler(async (req: Request, res: Response) => {
@@ -130,16 +128,13 @@ export const getElectionByCertainCreator = asyncHandler(
 );
 
 //get election candidates
-export const getElectionCandidates = asyncHandler(
+export const getElectionInfo = asyncHandler(
     async (req: Request, res: Response) => {
         const { electionId } = req.query;
-
         const election = await Election.findById(electionId).populate(
             "candidates"
         );
-        res.status(200).json(
-            new ApiResponse(200, election, "Candidates Found")
-        );
+        res.status(200).json(new ApiResponse(200, election, "Election Found"));
     }
 );
 

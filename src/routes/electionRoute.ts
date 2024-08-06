@@ -9,7 +9,7 @@ import {
     isEligible,
     hasVoted,
     getElectionByCertainCreator,
-    getElectionCandidates,
+    getElectionInfo,
     getVoters,
 } from "../controllers/electionController";
 const electionRouter = Router();
@@ -22,5 +22,5 @@ electionRouter.route("/getElection").get(getElections);
 electionRouter.route("/voted").get(protect, hasVoted);
 electionRouter.route("/getVoters").get(protect, getVoters);
 electionRouter.route("/elections").get(protect, getElectionByCertainCreator);
-electionRouter.route("/getElectionCandidates").get(getElectionCandidates);
+electionRouter.route("/getElectionInfo").get(getElectionInfo);
 export default electionRouter;
