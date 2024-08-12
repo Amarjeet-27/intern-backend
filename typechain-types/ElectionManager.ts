@@ -27,7 +27,6 @@ export interface ElectionManagerInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "addCandidate"
-      | "addVoter"
       | "admin"
       | "authorizeCreator"
       | "authorizedCreators"
@@ -36,26 +35,17 @@ export interface ElectionManagerInterface extends Interface {
       | "elections"
       | "endElection"
       | "getCandidates"
-      | "getVoters"
       | "getVotes"
       | "getWinner"
       | "vote"
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic:
-      | "CandidateAdded"
-      | "ElectionCreated"
-      | "VoteCast"
-      | "VoterAdded"
+    nameOrSignatureOrTopic: "CandidateAdded" | "ElectionCreated" | "VoteCast"
   ): EventFragment;
 
   encodeFunctionData(
     functionFragment: "addCandidate",
-    values: [BigNumberish, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addVoter",
     values: [BigNumberish, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
@@ -88,10 +78,6 @@ export interface ElectionManagerInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "getVoters",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getVotes",
     values: [BigNumberish, AddressLike]
   ): string;
@@ -108,7 +94,6 @@ export interface ElectionManagerInterface extends Interface {
     functionFragment: "addCandidate",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "addVoter", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "authorizeCreator",
@@ -135,7 +120,6 @@ export interface ElectionManagerInterface extends Interface {
     functionFragment: "getCandidates",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "getVoters", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getVotes", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getWinner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "vote", data: BytesLike): Result;
@@ -194,19 +178,6 @@ export namespace VoteCastEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace VoterAddedEvent {
-  export type InputTuple = [electionId: BigNumberish, voter: AddressLike];
-  export type OutputTuple = [electionId: bigint, voter: string];
-  export interface OutputObject {
-    electionId: bigint;
-    voter: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
 export interface ElectionManager extends BaseContract {
   connect(runner?: ContractRunner | null): ElectionManager;
   waitForDeployment(): Promise<this>;
@@ -256,12 +227,6 @@ export interface ElectionManager extends BaseContract {
     "nonpayable"
   >;
 
-  addVoter: TypedContractMethod<
-    [_electionId: BigNumberish, _voter: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
   admin: TypedContractMethod<[], [string], "view">;
 
   authorizeCreator: TypedContractMethod<
@@ -276,7 +241,7 @@ export interface ElectionManager extends BaseContract {
     "view"
   >;
 
-  createElection: TypedContractMethod<[_name: string], [void], "nonpayable">;
+  createElection: TypedContractMethod<[_name: string], [bigint], "nonpayable">;
 
   electionCount: TypedContractMethod<[], [bigint], "view">;
 
@@ -299,12 +264,6 @@ export interface ElectionManager extends BaseContract {
   >;
 
   getCandidates: TypedContractMethod<
-    [_electionId: BigNumberish],
-    [string[]],
-    "view"
-  >;
-
-  getVoters: TypedContractMethod<
     [_electionId: BigNumberish],
     [string[]],
     "view"
@@ -336,13 +295,6 @@ export interface ElectionManager extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "addVoter"
-  ): TypedContractMethod<
-    [_electionId: BigNumberish, _voter: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "admin"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -353,7 +305,7 @@ export interface ElectionManager extends BaseContract {
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "createElection"
-  ): TypedContractMethod<[_name: string], [void], "nonpayable">;
+  ): TypedContractMethod<[_name: string], [bigint], "nonpayable">;
   getFunction(
     nameOrSignature: "electionCount"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -375,9 +327,6 @@ export interface ElectionManager extends BaseContract {
   ): TypedContractMethod<[_electionId: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "getCandidates"
-  ): TypedContractMethod<[_electionId: BigNumberish], [string[]], "view">;
-  getFunction(
-    nameOrSignature: "getVoters"
   ): TypedContractMethod<[_electionId: BigNumberish], [string[]], "view">;
   getFunction(
     nameOrSignature: "getVotes"
@@ -418,13 +367,6 @@ export interface ElectionManager extends BaseContract {
     VoteCastEvent.OutputTuple,
     VoteCastEvent.OutputObject
   >;
-  getEvent(
-    key: "VoterAdded"
-  ): TypedContractEvent<
-    VoterAddedEvent.InputTuple,
-    VoterAddedEvent.OutputTuple,
-    VoterAddedEvent.OutputObject
-  >;
 
   filters: {
     "CandidateAdded(uint256,address)": TypedContractEvent<
@@ -458,17 +400,6 @@ export interface ElectionManager extends BaseContract {
       VoteCastEvent.InputTuple,
       VoteCastEvent.OutputTuple,
       VoteCastEvent.OutputObject
-    >;
-
-    "VoterAdded(uint256,address)": TypedContractEvent<
-      VoterAddedEvent.InputTuple,
-      VoterAddedEvent.OutputTuple,
-      VoterAddedEvent.OutputObject
-    >;
-    VoterAdded: TypedContractEvent<
-      VoterAddedEvent.InputTuple,
-      VoterAddedEvent.OutputTuple,
-      VoterAddedEvent.OutputObject
     >;
   };
 }
